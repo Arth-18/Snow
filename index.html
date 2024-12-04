@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jay Bajrangbali</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        form input, form select, form textarea, form button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        table th {
+            background: #007bff;
+            color: white;
+        }
+        .action-btn {
+            cursor: pointer;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+        }
+        .edit-btn {
+            background-color: #ffc107;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SnowPro Removal Services</h1>
+    </header>
+
+    <div class="container">
+        <h2>Add Customer</h2>
+        <form id="customerForm">
+            <input type="text" id="name" placeholder="Customer Name" required>
+            <input type="tel" id="phone" placeholder="Phone Number" required>
+            <select id="plan">
+                <option value="Basic Plan">Basic Plan</option>
+                <option value="Seasonal Plan">Seasonal Plan</option>
+                <option value="Premium Plan">Premium Plan</option>
+            </select>
+            <textarea id="notes" placeholder="Enter custom notes here..." rows="3"></textarea>
+            <button type="submit" class="btn">Add Customer</button>
+        </form>
+
+        <h2>Customer List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Plan</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="customerTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        let editingIndex = -1;
+
+        function displayCustomers() {
+            const tableBody = document.getElementById('customerTable');
+            tableBody.innerHTML = '';
+            customers.forEach((customer, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${customer.name}</td>
+                    <td>${customer.phone}</td>
+                    <td>${customer.plan}</td>
+                    <td>${customer.notes}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editCustomer(${index})">Edit</button>
+                        <button class="action-btn delete-btn" onclick="deleteCustomer(${index})">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteCustomer(index) {
+            customers.splice(index, 1);
+            localStorage.setItem('customers', JSON.stringify(customers));
+            displayCustomers();
+        }
+
+        function editCustomer(index) {
+            editingIndex = index;
+            const customer = customers[index];
+            document.getElementById('name').value = customer.name;
+            document.getElementById('phone').value = customer.phone;
+            document.getElementById('plan').value = customer.plan;
+            document.getElementById('notes').value = customer.notes;
+        }
+
+        document.getElementById('customerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const plan = document.getElementById('plan').value;
+            const notes = document.getElementById('notes').value;
+
+            if (editingIndex >= 0) {
+                customers[editingIndex] = { name, phone, plan, notes };
+                editingIndex = -1;
+            } else {
+                customers.push({ name, phone, plan, notes });
+            }
+
+            localStorage.setItem('customers', JSON.stringify(customers));
+            this.reset();
+            displayCustomers();
+        });
+
+        displayCustomers();
+    </script>
+</body>
+</html>
